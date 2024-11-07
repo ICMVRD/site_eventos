@@ -1,0 +1,15 @@
+<content>rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read;
+      allow write: if
+        // Only allow images and PDFs
+        request.resource.contentType.matches('image/.*') ||
+        request.resource.contentType.matches('application/pdf') &&
+        // Max file size of 5MB
+        request.resource.size < 5 * 1024 * 1024;
+    }
+  }
+}</content>

@@ -1,0 +1,45 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Seminars collection rules
+    match /seminars/{document} {
+      allow read: if true;  // Anyone can read seminar data
+      allow write: if request.resource.data.date is string &&
+        request.resource.data.church is string &&
+        
+        // Validate members structure and types
+        request.resource.data.members is map &&
+        request.resource.data.members.babies is number &&
+        request.resource.data.members.children is number &&
+        request.resource.data.members.intermediates is number &&
+        request.resource.data.members.teenagers is number &&
+        request.resource.data.members.adults is number &&
+        
+        // Validate visitors structure and types
+        request.resource.data.visitors is map &&
+        request.resource.data.visitors.babies is number &&
+        request.resource.data.visitors.children is number &&
+        request.resource.data.visitors.intermediates is number &&
+        request.resource.data.visitors.teenagers is number &&
+        request.resource.data.visitors.adults is number &&
+        
+        // Validate number ranges (ensure non-negative numbers)
+        request.resource.data.members.babies >= 0 &&
+        request.resource.data.members.children >= 0 &&
+        request.resource.data.members.intermediates >= 0 &&
+        request.resource.data.members.teenagers >= 0 &&
+        request.resource.data.members.adults >= 0 &&
+        request.resource.data.visitors.babies >= 0 &&
+        request.resource.data.visitors.children >= 0 &&
+        request.resource.data.visitors.intermediates >= 0 &&
+        request.resource.data.visitors.teenagers >= 0 &&
+        request.resource.data.visitors.adults >= 0;
+    }
+
+    // Deny access to all other collections by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
